@@ -32,6 +32,23 @@ const player = {
   running: false,
 };
 
+// load cat image and adapt player size when ready
+const catImg = new Image();
+let catImgLoaded = false;
+catImg.onload = () => {
+  catImgLoaded = true;
+  // choose a reasonable display height in CSS logical pixels
+  const targetH = Math.min(96, Math.max(40, Math.round(catImg.height * 0.6)));
+  const aspect = catImg.width / catImg.height;
+  player.h = targetH;
+  player.w = Math.round(targetH * aspect);
+  // reposition on ground
+  player.y = GROUND_Y() - player.h;
+  // enable smoothing for nicer upscaling
+  ctx.imageSmoothingEnabled = true;
+};
+catImg.src = 'katze.png';
+
 // Obstacles
 let obstacles = [];
 let spawnTimer = 0;
@@ -163,16 +180,21 @@ function draw(){
 
   // draw player (simple cat silhouette)
   ctx.save();
-  ctx.translate(player.x, player.y);
-  // body
-  ctx.fillStyle = '#ffcc88';
-  ctx.fillRect(0,0,player.w,player.h);
-  // ear
-  ctx.fillStyle = '#ffad33';
-  ctx.beginPath(); ctx.moveTo(6,0); ctx.lineTo(12,-10); ctx.lineTo(18,0); ctx.fill();
-  // tail
-  ctx.fillStyle = '#ffad33'; ctx.fillRect(-10,10,12,8);
-  ctx.restore();
+  // draw image if available, otherwise fallback to rectangle
+  if(catImgLoaded){
+    ctx.drawImage(catImg, player.x, player.y, player.w, player.h);
+  } else {
+    ctx.translate(player.x, player.y);
+    // body fallback
+    ctx.fillStyle = '#ffcc88';
+    ctx.fillRect(0,0,player.w,player.h);
+    // ear fallback
+    ctx.fillStyle = '#ffad33';
+    ctx.beginPath(); ctx.moveTo(6,0); ctx.lineTo(12,-10); ctx.lineTo(18,0); ctx.fill();
+    // tail fallback
+    ctx.fillStyle = '#ffad33'; ctx.fillRect(-10,10,12,8);
+    ctx.restore();
+  }
 
   // obstacles
   ctx.fillStyle = '#333';
