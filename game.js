@@ -100,8 +100,9 @@ function reset(){
 reset();
 
 // Physics
-const GRAV = 1600;
-const JUMP_V = -560;
+// tweaked: lower gravity and stronger initial jump for higher jumps
+const GRAV = 1400;
+const JUMP_V = -760;
 
 let last = performance.now();
 let runningHoldTimer = 0; // must hold run or lose
@@ -111,9 +112,10 @@ const RUN_REQUIRED_THRESHOLD = 2.5; // seconds allowed without running (increase
 let autoSprintRemaining = 0;
 
 function spawnObstacle(){
-  const h = 36 + Math.random()*40;
-  const w = 18 + Math.random()*60;
-  const x = canvas.width/DPR + 60;
+  // smaller obstacles (easier) and slightly more spacing
+  const h = 20 + Math.random()*28; // 20..48
+  const w = 12 + Math.random()*36; // 12..48
+  const x = canvas.width/DPR + 80;
   const y = GROUND_Y() - h;
   obstacles.push({x,y,w,h});
 }
@@ -157,7 +159,11 @@ function update(dt){
 
   // spawn obstacles based on distance
   spawnTimer -= scroll;
-  if(spawnTimer <= 0){ spawnTimer = 240 + Math.random()*380 - Math.min(distance/1000,220); spawnObstacle(); }
+  if(spawnTimer <= 0){
+    // base spacing increased so obstacles appear a bit less frequently
+    spawnTimer = 360 + Math.random()*420 - Math.min(distance/1000,200);
+    spawnObstacle();
+  }
 
   // update obstacles
   for(let i=obstacles.length-1;i>=0;i--){
