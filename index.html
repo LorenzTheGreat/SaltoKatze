@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>SaltoKatze</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="ui">
+    <div id="hud">
+      <div id="score">Punkte: 0</div>
+      <div id="speed">Geschw.: 0</div>
+      <div id="best">Best: 0</div>
+    </div>
+    <div id="messages"></div>
+  </div>
+
+  <canvas id="game"></canvas>
+
+  <!-- On-screen controls for mobile -->
+  <div id="controls">
+    <button id="btn-run" class="control">Sprint halten</button>
+    <button id="btn-jump" class="control">Sprung</button>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+:root{
+  --bg:#87ceeb;
+  --ground:#5c3b1a;
+  --accent:#ffd166;
+  --font: 'Segoe UI', Roboto, Arial, sans-serif;
+}
+html,body{height:100%;margin:0;font-family:var(--font);background:var(--bg);}
+#game{display:block;width:100%;height:100vh;background:linear-gradient(#87ceeb,#6ec1ff);}
+#hud{position:fixed;left:12px;top:8px;color:#052;display:flex;gap:12px;align-items:center}
+#score,#speed,#best{background:rgba(255,255,255,0.85);padding:6px 10px;border-radius:8px;font-weight:600}
+#messages{position:fixed;left:50%;transform:translateX(-50%);top:10vh;color:#222;background:rgba(255,255,255,0.9);padding:8px 14px;border-radius:8px}
+#controls{position:fixed;right:14px;bottom:14px;display:flex;flex-direction:column;gap:10px}
+.control{min-width:110px;padding:12px 18px;border-radius:12px;border:none;background:var(--accent);font-weight:700;box-shadow:0 4px 8px rgba(0,0,0,0.15)}
+@media(min-width:700px){
+  #controls{right:20px;bottom:20px;}
+  .control{min-width:150px}
+}
+
+/* accessibility focus */
+.control:active,.control:focus{outline:3px solid rgba(0,0,0,0.12)}
+
+.sr-only{position:absolute;left:-9999px}
