@@ -77,6 +77,16 @@ const bestLabel = document.getElementById('best');
 const messages = document.getElementById('messages');
 bestLabel.textContent = 'Best: ' + best;
 
+// show startup instructions
+messages.innerHTML = `<strong>Willkommen bei SaltoKatze!</strong><br>` +
+  `Halte <kbd>Shift</kbd> (oder die Taste "Sprint halten") um schnell zu rennen. ` +
+  `Wenn du nicht sprintest, läuft ein Timer runter und du verlierst.<br>` +
+  `Springe mit <kbd>Space</kbd> / <kbd>ArrowUp</kbd> oder der Taste "Sprung".<br>` +
+  `<strong>Tippe oder klicke zum Start.</strong>`;
+
+// make sprint button blink initially as hint
+document.getElementById('btn-run').classList.add('blink');
+
 function reset(){
   obstacles = [];
   spawnTimer = 0;
@@ -95,7 +105,10 @@ const JUMP_V = -560;
 
 let last = performance.now();
 let runningHoldTimer = 0; // must hold run or lose
-const RUN_REQUIRED_THRESHOLD = 1.4; // seconds allowed without running
+const RUN_REQUIRED_THRESHOLD = 2.5; // seconds allowed without running (increased for easier play)
+
+// automatic sprint boost on start (seconds)
+let autoSprintRemaining = 0;
 
 function spawnObstacle(){
   const h = 36 + Math.random()*40;
@@ -107,7 +120,14 @@ function spawnObstacle(){
 
 function update(dt){
   // input: run must be held (ShiftLeft, TouchRun)
-  player.running = keys['ShiftLeft'] || keys['ShiftRight'] || keys['TouchRun'];
+  const keyRunning = keys['ShiftLeft'] || keys['ShiftRight'] || keys['TouchRun'];
+  // if auto-sprint is active (short beginner boost), treat as running
+  if(autoSprintRemaining > 0){
+    player.running = true;
+    autoSprintRemaining = Math.max(0, autoSprintRemaining - dt);
+  } else {
+    player.running = !!keyRunning;
+  }
   if(!player.running){
     runningHoldTimer += dt;
   } else {
@@ -154,10 +174,23 @@ function update(dt){
   scoreLabel.textContent = 'Punkte: ' + Math.floor(distance);
   speedLabel.textContent = 'Geschw.: ' + Math.floor(speed);
   if(distance > best){ best = Math.floor(distance); localStorage.setItem('sk_best', best); bestLabel.textContent = 'Best: ' + best; }
+
+  // visual hint: blink sprint button when player should be holding but isn't, or before start
+  const runBtn = document.getElementById('btn-run');
+  if((running && !player.running) || (!running)){
+    runBtn.classList.add('blink');
+  } else {
+    runBtn.classList.remove('blink');
+  }
 }
 
-let running = true;
-function gameOver(msg){ running = false; messages.textContent = msg + ' Tippe zum Neustart.'; }
+let running = false;
+function gameOver(msg){
+  running = false;
+  messages.innerHTML = `<strong>${msg}</strong><br>Du verlierst, wenn du keinen Sprint hältst.` +
+    `<br><em>So spielst du:</em><br>Desktop: Halte <kbd>Shift</kbd> zum Sprinten, <kbd>Space</kbd> oder <kbd>ArrowUp</kbd> zum Springen.<br>` +
+    `Mobil: Halte die Taste "Sprint halten" gedrückt und tippe "Sprung" zum Springen.<br><strong>Tippe zum Neustart.</strong>`;
+}
 
 function rectsOverlap(a,b){
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -220,7 +253,14 @@ requestAnimationFrame(loop);
 
 // Restart on click/tap
 canvas.addEventListener('pointerdown', e=>{
-  if(!running){ running = true; messages.textContent=''; reset(); }
+  if(!running){
+    // start the game from instructions / game over
+    running = true; messages.textContent=''; runningHoldTimer = 0; reset(); last = performance.now();
+    // give new players a short automatic sprint boost
+    autoSprintRemaining = 2.0; // seconds
+    // stop blinking hint after start
+    document.getElementById('btn-run').classList.remove('blink');
+  }
 });
 
 // Also support touch on whole screen for jump
